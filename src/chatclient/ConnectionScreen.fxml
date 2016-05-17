@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="170.0" prefWidth="347.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatclient.ConnectionScreenController">
+   <children>
+      <Pane layoutX="143.0" layoutY="8.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <TextField fx:id="tfServer" layoutX="120.0" layoutY="47.0" />
+            <TextField fx:id="tfName" layoutX="120.0" layoutY="85.0" />
+            <Label layoutX="35.0" layoutY="51.0" text="Server:" />
+            <Label layoutX="35.0" layoutY="89.0" text="Name:" />
+            <Button fx:id="btnConnect" layoutX="120.0" layoutY="125.0" mnemonicParsing="false" onAction="#connect" prefHeight="25.0" prefWidth="65.0" text="Connect" />
+            <Button layoutX="194.0" layoutY="125.0" mnemonicParsing="false" onAction="#cancel" prefHeight="25.0" prefWidth="65.0" text="Cancel" />
+         </children></Pane>
+   </children>
+</AnchorPane>
