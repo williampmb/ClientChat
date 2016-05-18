@@ -46,6 +46,7 @@ public class ListenerHandler extends Thread {
         try {
 
             while (true) {
+                //TODO : Transform in InputStream
                 DataInputStream dis = new DataInputStream(socket.getInputStream());
                 message = dis.readUTF();
                 String[] tag = message.split(":-");

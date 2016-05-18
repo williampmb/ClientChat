@@ -8,6 +8,7 @@ package chatclient;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.net.URL;
 import java.text.DateFormat;
@@ -56,7 +57,7 @@ import javafx.stage.Stage;
 public class ChatScreenController implements Initializable {
 
     Socket connected;
-    DataOutputStream dos;
+    OutputStream os;
     static int id;
     static String name = "William";
     static String message = "";
@@ -86,13 +87,15 @@ public class ChatScreenController implements Initializable {
         DateFormat format = new SimpleDateFormat("HH:mm");
         String time = format.format(date);
         message = "id:" + id + "/" + "name:" + name + "/msg:" + tfSend.getText() + "/time:" + time;
+       
         try {
-            dos.writeUTF(message);
-            System.out.println(message);
-            dos.flush();
+            os.write(message.getBytes());
+            os.flush();
         } catch (IOException ex) {
             Logger.getLogger(ChatScreenController.class.getName()).log(Level.SEVERE, null, ex);
         }
+           
+       
         String buildMsg = name + "[" + time + "]: " + tfSend.getText() + "\r\n";
         Text msg = new Text(buildMsg);
         msg.setFill(Color.BLUE);
@@ -109,10 +112,10 @@ public class ChatScreenController implements Initializable {
         message = "registration:-" + name;
 
         try {
-            dos = new DataOutputStream(connected.getOutputStream());
-            dos.writeUTF(message);
+            os = connected.getOutputStream();
+            os.write(message.getBytes());
             System.out.println(message);
-            dos.flush();
+            os.flush();
 
         } catch (IOException ex) {
             Logger.getLogger(ChatScreenController.class.getName()).log(Level.SEVERE, null, ex);
@@ -152,7 +155,8 @@ public class ChatScreenController implements Initializable {
     private Socket tryConnection(String ip) {
         Socket socket = null;
         try {
-            socket = new Socket(ip, 9000);
+            //socket = new Socket(ip, 9000);
+            socket = new Socket(ip, 9001);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -166,13 +170,13 @@ public class ChatScreenController implements Initializable {
         ListenerHandler rh = new ListenerHandler(tflowChat, connected, lvPerson);
         rh.start();
         name = myName;
-        message = "registration:-" + name;
+        String msgIntro = "registration:-" + name;
 
         try {
-            dos = new DataOutputStream(connected.getOutputStream());
-            dos.writeUTF(message);
-            System.out.println(message);
-            dos.flush();
+            os = connected.getOutputStream();
+            os.write(msgIntro.getBytes());
+            System.out.println(msgIntro);
+            os.flush();
 
         } catch (IOException ex) {
             Logger.getLogger(ChatScreenController.class.getName()).log(Level.SEVERE, null, ex);
@@ -181,16 +185,7 @@ public class ChatScreenController implements Initializable {
         miSetupConnection.setDisable(true);
 
     }
-//    public static void changeList(ObservableList online){
-//          task = new Task() {
-//            @Override
-//            protected Object call() throws Exception {
-//                people = online;
-//                return null;
-//            }
-//        };
-//    }
-  
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         btnSend.setDisable(true);

@@ -20,7 +20,6 @@ public class ChatClient extends Application {
     public static Stage primaryStage;
     @Override
     public void start(Stage stage) throws Exception {
-        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         primaryStage = stage;
         Parent root = FXMLLoader.load(getClass().getResource("ChatScreen.fxml"));
         
