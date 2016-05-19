@@ -84,26 +84,31 @@ public class ChatScreenController implements Initializable {
     @FXML
     private void sendMessage(ActionEvent event) {
         Date date = new Date();
-        DateFormat format = new SimpleDateFormat("HH:mm");
+        DateFormat format = new SimpleDateFormat("HHmm");
         String time = format.format(date);
+        System.out.println("---TEMPO FORMATADO EM HHmm: " + time);
+        //FIXME: split ~:~ and format time is same ~:~
         message = "id:" + id + "/" + "name:" + name + "/msg:" + tfSend.getText() + "/time:" + time;
-       
+        System.out.println("---- Mensagem formatada para envio: " + message);
         try {
+
             os.write(message.getBytes());
             os.flush();
         } catch (IOException ex) {
             Logger.getLogger(ChatScreenController.class.getName()).log(Level.SEVERE, null, ex);
         }
-           
-       
+
+        time = time.substring(0, 2) + ":" + time.substring(2, time.length());
+        System.out.println("TEMPO PRA PRINTAR NA MINHA TELA: " + time);
         String buildMsg = name + "[" + time + "]: " + tfSend.getText() + "\r\n";
+        System.out.println("printar na minha tela a msg: " + buildMsg);
         Text msg = new Text(buildMsg);
         msg.setFill(Color.BLUE);
         tflowChat.getChildren().add(msg);
 
     }
 
-    @FXML
+    /*  @FXML
     private void connect(ActionEvent event) {
         connected = tryConnection("localhost");
 
@@ -116,13 +121,13 @@ public class ChatScreenController implements Initializable {
             os.write(message.getBytes());
             System.out.println(message);
             os.flush();
+            os.close();
 
         } catch (IOException ex) {
             Logger.getLogger(ChatScreenController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-    }
-
+    }*/
     @FXML
     private void setConnection(ActionEvent event) {
         Parent connectionScreen;
@@ -167,8 +172,6 @@ public class ChatScreenController implements Initializable {
     private void connect(String ip, String myName) {
         connected = tryConnection(ip);
 
-        ListenerHandler rh = new ListenerHandler(tflowChat, connected, lvPerson);
-        rh.start();
         name = myName;
         String msgIntro = "registration:-" + name;
 
@@ -181,6 +184,9 @@ public class ChatScreenController implements Initializable {
         } catch (IOException ex) {
             Logger.getLogger(ChatScreenController.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        ListenerHandler rh = new ListenerHandler(tflowChat, connected, lvPerson);
+        rh.start();
         btnSend.setDisable(false);
         miSetupConnection.setDisable(true);
 
@@ -190,13 +196,11 @@ public class ChatScreenController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         btnSend.setDisable(true);
         miSetupConnection.setDisable(false);
-        
+
 //        spChat.setFitToWidth(true);
-       
-      lvPerson.setItems(people);
+        lvPerson.setItems(people);
 //        anchorChat.prefHeightProperty().bind(tflowChat.heightProperty());
-        
-        
+
     }
 
 }

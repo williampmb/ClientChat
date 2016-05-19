@@ -5,9 +5,14 @@
  */
 package chatclient;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -47,8 +52,9 @@ public class ListenerHandler extends Thread {
 
             while (true) {
                 //TODO : Transform in InputStream
-                DataInputStream dis = new DataInputStream(socket.getInputStream());
-                message = dis.readUTF();
+                InputStream is = socket.getInputStream();
+                message = processRead(is);
+                System.out.println("msg recebida: " + message);
                 String[] tag = message.split(":-");
 
                 switch (tag[0]) {
@@ -71,7 +77,7 @@ public class ListenerHandler extends Thread {
 
                         String people = tag[1];
                         String[] single = people.split("--");
-                       
+
                         ObservableList<String> p2 = FXCollections.observableArrayList();
                         for (String s : single) {
                             p2.add(s);
@@ -108,6 +114,24 @@ public class ListenerHandler extends Thread {
             }
         }
         return null;
+    }
+
+    private static String processRead(InputStream is) throws IOException {
+        
+        byte[] bufferSize = new byte[4];
+        int byteSize = is.read(bufferSize);
+        System.out.println("bytes size: " + byteSize);
+         
+        ByteBuffer wrapped = ByteBuffer.wrap(bufferSize);
+        int size = wrapped.getInt();
+        
+        byte[] bufferMsg = new byte[size];
+        int byteMsg = is.read(bufferMsg);
+        
+        String msgIn = new String(bufferMsg,0,byteMsg);
+        System.out.println("Msg: " + msgIn );
+      
+        return msgIn;
     }
 
 }
