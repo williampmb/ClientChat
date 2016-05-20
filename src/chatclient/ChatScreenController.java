@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -86,48 +87,32 @@ public class ChatScreenController implements Initializable {
         Date date = new Date();
         DateFormat format = new SimpleDateFormat("HHmm");
         String time = format.format(date);
-        System.out.println("---TEMPO FORMATADO EM HHmm: " + time);
         //FIXME: split ~:~ and format time is same ~:~
+        //FIXME: change the tag of split: it brakes the message that comes  with : character
         message = "id:" + id + "/" + "name:" + name + "/msg:" + tfSend.getText() + "/time:" + time;
-        System.out.println("---- Mensagem formatada para envio: " + message);
+
         try {
 
-            os.write(message.getBytes());
+            int length = message.getBytes().length;
+            byte[] lengthBytes = intToBytes(length);
+            byte[] msgOutBytes = message.getBytes();
+            byte[] fullBytes = concatenateBytes(lengthBytes, msgOutBytes);
+
+            os.write(fullBytes);
             os.flush();
+
         } catch (IOException ex) {
             Logger.getLogger(ChatScreenController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         time = time.substring(0, 2) + ":" + time.substring(2, time.length());
-        System.out.println("TEMPO PRA PRINTAR NA MINHA TELA: " + time);
         String buildMsg = name + "[" + time + "]: " + tfSend.getText() + "\r\n";
-        System.out.println("printar na minha tela a msg: " + buildMsg);
         Text msg = new Text(buildMsg);
         msg.setFill(Color.BLUE);
         tflowChat.getChildren().add(msg);
 
     }
 
-    /*  @FXML
-    private void connect(ActionEvent event) {
-        connected = tryConnection("localhost");
-
-        ListenerHandler rh = new ListenerHandler(tflowChat, connected, lvPerson);
-        rh.start();
-        message = "registration:-" + name;
-
-        try {
-            os = connected.getOutputStream();
-            os.write(message.getBytes());
-            System.out.println(message);
-            os.flush();
-            os.close();
-
-        } catch (IOException ex) {
-            Logger.getLogger(ChatScreenController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-    }*/
     @FXML
     private void setConnection(ActionEvent event) {
         Parent connectionScreen;
@@ -160,8 +145,8 @@ public class ChatScreenController implements Initializable {
     private Socket tryConnection(String ip) {
         Socket socket = null;
         try {
-            //socket = new Socket(ip, 9000);
-            socket = new Socket(ip, 9001);
+            socket = new Socket(ip, 9000);
+//            socket = new Socket(ip, 9001);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -177,8 +162,13 @@ public class ChatScreenController implements Initializable {
 
         try {
             os = connected.getOutputStream();
-            os.write(msgIntro.getBytes());
-            System.out.println(msgIntro);
+            //envia conexão certo
+            int length = msgIntro.getBytes().length;
+            byte[] lengthBytes = intToBytes(length);
+            byte[] msgOutBytes = msgIntro.getBytes();
+            byte[] fullBytes = concatenateBytes(lengthBytes, msgOutBytes);
+
+            os.write(fullBytes);
             os.flush();
 
         } catch (IOException ex) {
@@ -190,6 +180,19 @@ public class ChatScreenController implements Initializable {
         btnSend.setDisable(false);
         miSetupConnection.setDisable(true);
 
+    }
+
+    public static byte[] intToBytes(final int i) {
+        ByteBuffer bb = ByteBuffer.allocate(4);
+        bb.putInt(i);
+        return bb.array();
+    }
+
+    public static byte[] concatenateBytes(byte[] lengthBytes, byte[] msgOutBytes) {
+        byte[] result = new byte[lengthBytes.length + msgOutBytes.length];
+        System.arraycopy(lengthBytes, 0, result, 0, lengthBytes.length);
+        System.arraycopy(msgOutBytes, 0, result, lengthBytes.length, msgOutBytes.length);
+        return result;
     }
 
     @Override

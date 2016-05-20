@@ -76,6 +76,7 @@ public class ListenerHandler extends Thread {
                     case "online":
 
                         String people = tag[1];
+                        //TODO: enumaration with split tags
                         String[] single = people.split("--");
 
                         ObservableList<String> p2 = FXCollections.observableArrayList();
@@ -104,7 +105,7 @@ public class ListenerHandler extends Thread {
             System.out.println("erro2");
         }
     }
-
+//FIXME: change the tag of split: it brakes the message that comes  with : character
     private String getTag(String msg, String tag) {
         String[] tags = msg.split("/");
         for (int i = 0; i < tags.length; i++) {
@@ -127,7 +128,7 @@ public class ListenerHandler extends Thread {
         
         byte[] bufferMsg = new byte[size];
         int byteMsg = is.read(bufferMsg);
-        
+//        is.reset();
         String msgIn = new String(bufferMsg,0,byteMsg);
         System.out.println("Msg: " + msgIn );
       
