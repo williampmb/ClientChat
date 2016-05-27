@@ -26,8 +26,6 @@ public class ChatClient extends Application {
         Scene scene = new Scene(root);
         stage.setResizable(false);
         stage.setScene(scene);
-        //stage.initOwner(primaryStage);
-      //  stage.initModality(Modality.WINDOW_MODAL);
         stage.show();
     }
 

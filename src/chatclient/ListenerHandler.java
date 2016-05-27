@@ -11,6 +11,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import javafx.application.Platform;
@@ -18,7 +19,9 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -33,15 +36,14 @@ public class ListenerHandler extends Thread {
     String message;
     String printAtChat = "";
     boolean validId = false;
-    //   StringProperty chat;
     TextFlow chat;
     Task task;
     private final ListView lvPerson;
+    //TODO: enumaration with split tags
 
     ListenerHandler(TextFlow chat, Socket socket, ListView lvPerson) {
         this.chat = chat;
         this.socket = socket;
-        //this.task = task;
         this.lvPerson = lvPerson;
         setDaemon(true);
     }
@@ -51,10 +53,8 @@ public class ListenerHandler extends Thread {
         try {
 
             while (true) {
-                //TODO : Transform in InputStream
                 InputStream is = socket.getInputStream();
                 message = processRead(is);
-                System.out.println("msg recebida: " + message);
                 String[] tag = message.split(":-");
 
                 switch (tag[0]) {
@@ -76,13 +76,12 @@ public class ListenerHandler extends Thread {
                     case "online":
 
                         String people = tag[1];
-                        //TODO: enumaration with split tags
+
                         String[] single = people.split("--");
 
                         ObservableList<String> p2 = FXCollections.observableArrayList();
                         for (String s : single) {
                             p2.add(s);
-                            System.out.println(s);
 
                         }
 
@@ -95,17 +94,22 @@ public class ListenerHandler extends Thread {
                         });
                         break;
                     default:
-                        System.out.println("defaul");
+                        System.out.println("Tag not recognized");
                         break;
                 }
-
-                System.out.println("Recebido: " + message);
             }
         } catch (Exception e) {
-            System.out.println("erro2");
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    ErrorMessage error = new ErrorMessage("Lost Connection.", this);
+                    error.show();
+                }
+            });
         }
     }
 //FIXME: change the tag of split: it brakes the message that comes  with : character
+
     private String getTag(String msg, String tag) {
         String[] tags = msg.split("/");
         for (int i = 0; i < tags.length; i++) {
@@ -118,20 +122,17 @@ public class ListenerHandler extends Thread {
     }
 
     private static String processRead(InputStream is) throws IOException {
-        
+
         byte[] bufferSize = new byte[4];
         int byteSize = is.read(bufferSize);
-        System.out.println("bytes size: " + byteSize);
-         
+
         ByteBuffer wrapped = ByteBuffer.wrap(bufferSize);
         int size = wrapped.getInt();
-        
+
         byte[] bufferMsg = new byte[size];
         int byteMsg = is.read(bufferMsg);
-//        is.reset();
-        String msgIn = new String(bufferMsg,0,byteMsg);
-        System.out.println("Msg: " + msgIn );
-      
+        String msgIn = new String(bufferMsg, 0, byteMsg);
+
         return msgIn;
     }
 

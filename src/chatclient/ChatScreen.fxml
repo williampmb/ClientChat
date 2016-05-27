@@ -19,16 +19,12 @@
                       <Menu mnemonicParsing="false" text="File">
                         <items>
                           <MenuItem fx:id="miSetupConnection" mnemonicParsing="false" onAction="#setConnection" text="Connect" />
-                        </items>
-                      </Menu>
-                      <Menu mnemonicParsing="false" text="Edit">
-                        <items>
-                          <MenuItem mnemonicParsing="false" text="Delete" />
+                              <MenuItem mnemonicParsing="false" onAction="#close" text="Close" />
                         </items>
                       </Menu>
                       <Menu mnemonicParsing="false" text="Help">
                         <items>
-                          <MenuItem mnemonicParsing="false" text="About" />
+                          <MenuItem mnemonicParsing="false" onAction="#aboutScreen" text="About" />
                         </items>
                       </Menu>
                     </menus>
@@ -39,27 +35,27 @@
          <right>
             <Pane BorderPane.alignment="CENTER">
                <children>
-                  <ListView fx:id="lvPerson" prefHeight="361.0" prefWidth="153.0" />
+                  <ListView fx:id="lvPerson" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="372.0" prefWidth="153.0" />
                </children>
             </Pane>
          </right>
          <center>
-            <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" BorderPane.alignment="CENTER">
+            <SplitPane dividerPositions="0.8356545961002786" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" BorderPane.alignment="CENTER">
               <items>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="289.0" prefWidth="353.0">
                      <children>
-                        <ScrollPane fx:id="spChat" maxHeight="309.0" maxWidth="353.0" prefHeight="309.0" prefWidth="353.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <ScrollPane fx:id="spChat" hbarPolicy="NEVER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="309.0" prefWidth="353.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                           <content>
-                            <AnchorPane fx:id="anchorChat" minHeight="0.0" minWidth="0.0" prefHeight="307.0" prefWidth="398.0">
+                            <AnchorPane fx:id="anchorChat" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" prefHeight="291.0" prefWidth="398.0">
                                  <children>
-                                    <TextFlow fx:id="tflowChat" prefHeight="307.0" prefWidth="397.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="0.0" />
+                                    <TextFlow fx:id="tflowChat" prefHeight="291.0" prefWidth="397.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="0.0" />
                                  </children>
                               </AnchorPane>
                           </content>
                         </ScrollPane>
                      </children>
                   </AnchorPane>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                <AnchorPane maxHeight="60.0" maxWidth="400.0" minHeight="60.0" minWidth="400.0" prefHeight="60.0" prefWidth="400.0">
                      <children>
                         <HBox prefHeight="45.0" prefWidth="354.0" spacing="20.0">
                            <children>

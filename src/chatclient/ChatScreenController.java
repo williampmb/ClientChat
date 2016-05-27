@@ -5,32 +5,28 @@
  */
 package chatclient;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
-import javafx.beans.binding.StringBinding;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.beans.property.StringPropertyBase;
+import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -41,9 +37,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -76,6 +72,8 @@ public class ChatScreenController implements Initializable {
     @FXML
     MenuItem miSetupConnection;
     @FXML
+    MenuItem close;
+    @FXML
     ScrollPane spChat;
     @FXML
     AnchorPane anchorChat;
@@ -84,6 +82,36 @@ public class ChatScreenController implements Initializable {
 
     @FXML
     private void sendMessage(ActionEvent event) {
+        if (tfSend.getText().equals("")) {
+
+        } else {
+            sendMessage();
+        }
+    }
+    
+    @FXML
+    private void close(ActionEvent event){
+        
+        System.exit(0);
+    }
+    
+    @FXML
+    private void aboutScreen(ActionEvent event){
+         try {
+            Parent parent = FXMLLoader.load(getClass().getResource("chatclient/About.fxml"));
+            Stage stage = new Stage();
+            Scene scene = new Scene(parent);
+            stage.setScene(scene);
+            stage.setTitle("About");
+            stage.show();
+            stage.setResizable(false);
+            
+        } catch (Exception ex) {
+            System.out.println("Problem to open.!");
+        }
+    }
+
+    private void sendMessage() {
         Date date = new Date();
         DateFormat format = new SimpleDateFormat("HHmm");
         String time = format.format(date);
@@ -109,7 +137,16 @@ public class ChatScreenController implements Initializable {
         String buildMsg = name + "[" + time + "]: " + tfSend.getText() + "\r\n";
         Text msg = new Text(buildMsg);
         msg.setFill(Color.BLUE);
-        tflowChat.getChildren().add(msg);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                tflowChat.getChildren().add(msg);
+            }
+        });
+
+        tfSend.setText("");
+        spChat.requestFocus();
+        tfSend.requestFocus();
 
     }
 
@@ -129,12 +166,8 @@ public class ChatScreenController implements Initializable {
             stage.showAndWait();
 
             Connection connection = Connection.getInstance();
-            if (!connection.getIp().equals("")) {
-                System.out.println("connectining");
-                connect(connection.getIp(), connection.getName());
-            } else {
-                System.out.println("do Nothing");
-            }
+
+            connect(connection.getIp(), connection.getName());
 
         } catch (IOException ex) {
             Logger.getLogger(ChatScreenController.class.getName()).log(Level.SEVERE, null, ex);
@@ -142,38 +175,57 @@ public class ChatScreenController implements Initializable {
 
     }
 
-    private Socket tryConnection(String ip) {
+    private Socket tryConnection(String address) {
+        String[] tok;
+        String ip = null;
+        String portStr;
+        int port = 0;
+
         Socket socket = null;
         try {
-            socket = new Socket(ip, 9000);
-//            socket = new Socket(ip, 9001);
+            tok = address.split(":");
+            ip = tok[0];
+            portStr = tok[1];
+            port = Integer.valueOf(portStr);
 
+            socket = new Socket(ip, port);
+
+        } catch (ArrayIndexOutOfBoundsException aioobe) {
+            ErrorMessage error = new ErrorMessage("Not a valid address.", this);
+            error.show();
+        } catch (NullPointerException npe) {
+            ErrorMessage error = new ErrorMessage("Not a valid address.", this);
+            error.show();
         } catch (Exception e) {
-            e.printStackTrace();
+            ErrorMessage error = new ErrorMessage("Server offline or not found", this);
+            error.show();
         }
         return socket;
     }
 
     private void connect(String ip, String myName) {
         connected = tryConnection(ip);
-
+        if (connected == null) {
+            return;
+        }
+        resetAllFields();
         name = myName;
         String msgIntro = "registration:-" + name;
 
         try {
             os = connected.getOutputStream();
-            //envia conexão certo
             int length = msgIntro.getBytes().length;
             byte[] lengthBytes = intToBytes(length);
             byte[] msgOutBytes = msgIntro.getBytes();
             byte[] fullBytes = concatenateBytes(lengthBytes, msgOutBytes);
-
             os.write(fullBytes);
             os.flush();
 
         } catch (IOException ex) {
             Logger.getLogger(ChatScreenController.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+       
 
         ListenerHandler rh = new ListenerHandler(tflowChat, connected, lvPerson);
         rh.start();
@@ -200,10 +252,33 @@ public class ChatScreenController implements Initializable {
         btnSend.setDisable(true);
         miSetupConnection.setDisable(false);
 
-//        spChat.setFitToWidth(true);
         lvPerson.setItems(people);
-//        anchorChat.prefHeightProperty().bind(tflowChat.heightProperty());
+        anchorChat.prefHeightProperty().bind(tflowChat.heightProperty());
 
+        tfSend.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent key) {
+                if (key.getCode().equals(KeyCode.ENTER) && !tfSend.getText().equals("")) {
+                    sendMessage();
+                }
+            }
+        });
+
+        //Update the scroll vertical bar to bottom
+        DoubleProperty hProperty = new SimpleDoubleProperty();
+        hProperty.bind(tflowChat.heightProperty());
+        hProperty.addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                spChat.setVvalue(spChat.getVmax());
+            }
+        });
+
+    }
+
+    private void resetAllFields() {
+        tflowChat.getChildren().clear();
+        people.clear();
     }
 
 }
