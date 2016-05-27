@@ -98,7 +98,7 @@ public class ChatScreenController implements Initializable {
     @FXML
     private void aboutScreen(ActionEvent event){
          try {
-            Parent parent = FXMLLoader.load(getClass().getResource("chatclient/About.fxml"));
+            Parent parent = FXMLLoader.load(getClass().getResource("/chatclient/About.fxml"));
             Stage stage = new Stage();
             Scene scene = new Scene(parent);
             stage.setScene(scene);
